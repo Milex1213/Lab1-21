@@ -1,4 +1,4 @@
-with open("input.txt") as f:
+with open("1.txt") as f:
     a = [x for x in f.read().split() if len(x) > 5 and int(x) % 2 == 1]
 
 r = []
