@@ -1,42 +1,35 @@
+```python
 import re
 
-d = {'0':'ноль','1':'один','2':'два','3':'три','4':'четыре','5':'пять','6':'шесть','7':'семь','8':'восемь','9':'девять'}
+with open("1.txt") as f:
+    text=f.read()
 
-def s(n, step):
-    n = list(n)
-    start = 0 if step == 2 else 2
-    for i in range(start, len(n)-1, step):
-        n[i], n[i+1] = n[i+1], n[i]
-    return ''.join(n)
+nums=re.findall(r'\d+',text)
+a=[x for x in nums if len(x)>5 and int(x)%2==1]
 
-def p(t):
-    if not re.match(r'^[1-9]\d{5,}$', t) or int(t) % 2 == 0:
-        return None
-    c = t
-    v = set()
-    while True:
-        if '000' in c:
-            break
-        if c in v:
-            break
-        v.add(c)
-        c = s(c, 2)
-    return s(c, 4)
+r=[]
+f_flag=False
+p=0
+i=0
 
-def main():
-    with open('1.txt', 'r', encoding='utf-8') as f:
-        text = f.read()
-    lexemes = re.split(r'\s+', text.strip())
-    results = []
-    for lexeme in lexemes:
-        if lexeme:
-            res = p(lexeme)
-            if res:
-                results.append(res)
-    if results:
-        if len(results) > 1:
-            print(' '.join(results[:-1]), end=' ')
-        print(' '.join(d[ch] for ch in results[-1]))
+while i<len(a):
+    if i+1<len(a):
+        x,y=a[i],a[i+1]
+        if not f_flag or p%2==0:
+            r.extend([y,x])
+        else:
+            r.extend([x,y])
+            p+=1
+        if re.search(r'000',x) or re.search(r'000',y):
+            f_flag=True
+        i+=2
+    else:
+        r.append(a[i])
+        i+=1
 
-if __name__ == "__main__":
-    main()
+if r:
+    print(' '.join(r[:-1]),end=' ')
+    d={'0':'ноль','1':'один','2':'два','3':'три','4':'четыре',
+       '5':'пять','6':'шесть','7':'семь','8':'восемь','9':'девять'}
+    print(' '.join(d[c] for c in r[-1]))
+```
