@@ -22,12 +22,12 @@ def count_elements(A, mid):
 
     pos = 0
     for j in range(area2.shape[1]):
-        if j % 2 == 1:
+        if (j + 1) % 2 == 0:  # четные столбцы (1-based)
             pos += np.sum(area2[:, j] > 0)
 
     neg = 0
     for j in range(area4.shape[1]):
-        if j % 2 == 0:
+        if (j + 1) % 2 == 1:  # нечетные столбцы (1-based)
             neg += np.sum(area4[:, j] < 0)
 
     return pos, neg
