@@ -7,7 +7,7 @@ nums=re.findall(r'\b\d{5,}[13579]\b',text)
 
 r=[]
 found=False
-pair_index=0
+swap_next=False
 i=0
 
 while i<len(nums):
@@ -15,14 +15,15 @@ while i<len(nums):
         x,y=nums[i],nums[i+1]
         if not found:
             r+=[y,x]
-            if re.search(r'000',x) or re.search(r'000',y):
+            if '000' in x or '000' in y:
                 found=True
+                swap_next=False
         else:
-            if pair_index%2==1:
+            if swap_next:
                 r+=[y,x]
             else:
                 r+=[x,y]
-            pair_index+=1
+            swap_next=not swap_next
         i+=2
     else:
         r.append(nums[i])
