@@ -1,78 +1,69 @@
 import numpy as np
 
-def print_matrix(name, M):
-    print(f"\n{name}:")
-    for row in M:
-        print(" ".join(f"{x:4}" for x in row))
+# ---------- Чтение данных ----------
+with open("input.txt", "r") as f:
+    N = int(f.readline())
+    K = int(f.readline())
+    A = []
 
-def generate_matrix(N):
-    A = np.zeros((N, N), dtype=int)
-    val = -10
-    for i in range(N):
-        for j in range(N):
-            A[i][j] = val
-            val += 1
-            if val > 10:
-                val = -10
-    return A
+    for _ in range(N):
+        A.append(list(map(int, f.readline().split())))
 
-def count_elements(A, mid):
-    area2 = A[:mid, mid:]
-    area4 = A[mid:, mid:]
+A = np.array(A)
 
-    pos = 0
+print("Матрица A:")
+print(A)
+
+# ---------- Формирование F ----------
+F = A.copy()
+
+half = N // 2
+
+# Области
+area1 = F[:half, :half]
+area2 = F[:half, half:]
+area3 = F[half:, :half]
+area4 = F[half:, half:]
+
+# ---------- Подсчёты ----------
+count_pos_2 = 0
+for i in range(area2.shape[0]):
     for j in range(area2.shape[1]):
-        if (j + 1) % 2 == 0:  # четные столбцы (1-based)
-            pos += np.sum(area2[:, j] > 0)
+        if (j % 2 == 1) and area2[i, j] > 0:  # чётные столбцы (индексация с 0!)
+            count_pos_2 += 1
 
-    neg = 0
+count_neg_4 = 0
+for i in range(area4.shape[0]):
     for j in range(area4.shape[1]):
-        if (j + 1) % 2 == 1:  # нечетные столбцы (1-based)
-            neg += np.sum(area4[:, j] < 0)
+        if (j % 2 == 0) and area4[i, j] < 0:  # нечётные столбцы
+            count_neg_4 += 1
 
-    return pos, neg
+print("Положительных (обл 2, четн столбцы):", count_pos_2)
+print("Отрицательных (обл 4, нечетн столбцы):", count_neg_4)
 
-def build_F(A):
-    N = A.shape[0]
-    mid = N // 2
-    F = A.copy()
+# ---------- Условие ----------
+if count_pos_2 > count_neg_4:
+    print("Меняем области 1 и 2 симметрично")
 
-    pos, neg = count_elements(A, mid)
+    # зеркальный обмен
+    F[:half, :half], F[:half, half:] = np.fliplr(area2), np.fliplr(area1)
 
-    print(f"\nПоложительных в области 2 (четные столбцы): {pos}")
-    print(f"Отрицательных в области 4 (нечетные столбцы): {neg}")
+else:
+    print("Меняем области 3 и 4 несимметрично")
 
-    if pos > neg:
-        a1 = A[:mid, :mid].copy()
-        a2 = A[:mid, mid:].copy()
-        F[:mid, :mid] = np.fliplr(a2)
-        F[:mid, mid:] = np.fliplr(a1)
-    else:
-        a3 = A[mid:, :mid].copy()
-        a4 = A[mid:, mid:].copy()
-        F[mid:, :mid] = a4
-        F[mid:, mid:] = a3
+    # простой обмен
+    F[half:, :half], F[half:, half:] = area4, area3
 
-    return F
+print("Матрица F:")
+print(F)
 
-def main():
-    K = int(input("Введите K: "))
-    N = int(input("Введите N: "))
+# ---------- Матричные операции ----------
+AT = A.T
 
-    A = generate_matrix(N)
-    print_matrix("Матрица A", A)
+print("A^T:")
+print(AT)
 
-    F = build_F(A)
-    print_matrix("Матрица F", F)
+result = (F + A) @ AT - K * F
 
-    AT = A.T
-    print_matrix("A^T", AT)
-
-    FA = F + A
-    print_matrix("F + A", FA)
-
-    result = np.dot(FA, AT) - K * F
-    print_matrix("(F + A) * A^T - K * F", result)
-
-if __name__ == "__main__":
-    main()
+print("Результат (F + A) * A^T - K * F:")
+print(result)
