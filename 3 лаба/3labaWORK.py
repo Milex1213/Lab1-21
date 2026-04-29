@@ -5,68 +5,61 @@ def print_matrix(name, M):
     for row in M:
         print(" ".join(f"{x:4}" for x in row))
 
+def generate_matrix(N):
+    A = np.zeros((N, N), dtype=int)
+    val = -10
+    for i in range(N):
+        for j in range(N):
+            A[i][j] = val
+            val += 1
+            if val > 10:
+                val = -10
+    return A
 
-def split_matrix(A):
-    n = A.shape[0]
-    mid = n // 2
-    
-    area1 = A[:mid, :mid]
+def count_elements(A, mid):
     area2 = A[:mid, mid:]
-    area3 = A[mid:, :mid]
     area4 = A[mid:, mid:]
-    
-    return area1.copy(), area2.copy(), area3.copy(), area4.copy()
 
-
-def count_condition(area2, area4):
-    count_pos = 0
+    pos = 0
     for j in range(area2.shape[1]):
         if j % 2 == 1:
-            count_pos += np.sum(area2[:, j] > 0)
+            pos += np.sum(area2[:, j] > 0)
 
-    count_neg = 0
+    neg = 0
     for j in range(area4.shape[1]):
         if j % 2 == 0:
-            count_neg += np.sum(area4[:, j] < 0)
+            neg += np.sum(area4[:, j] < 0)
 
-    return count_pos, count_neg
-
+    return pos, neg
 
 def build_F(A):
-    n = A.shape[0]
+    N = A.shape[0]
+    mid = N // 2
     F = A.copy()
-    
-    a1, a2, a3, a4 = split_matrix(A)
-    
-    pos, neg = count_condition(a2, a4)
-    
+
+    pos, neg = count_elements(A, mid)
+
     print(f"\nПоложительных в области 2 (четные столбцы): {pos}")
     print(f"Отрицательных в области 4 (нечетные столбцы): {neg}")
-    
-    mid = n // 2
 
     if pos > neg:
+        a1 = A[:mid, :mid].copy()
+        a2 = A[:mid, mid:].copy()
         F[:mid, :mid] = np.fliplr(a2)
         F[:mid, mid:] = np.fliplr(a1)
     else:
+        a3 = A[mid:, :mid].copy()
+        a4 = A[mid:, mid:].copy()
         F[mid:, :mid] = a4
         F[mid:, mid:] = a3
 
     return F
 
-
 def main():
     K = int(input("Введите K: "))
     N = int(input("Введите N: "))
 
-    print("Введите матрицу A построчно:")
-    A = []
-    for _ in range(N):
-        row = list(map(int, input().split()))
-        A.append(row)
-
-    A = np.array(A)
-
+    A = generate_matrix(N)
     print_matrix("Матрица A", A)
 
     F = build_F(A)
@@ -80,7 +73,6 @@ def main():
 
     result = np.dot(FA, AT) - K * F
     print_matrix("(F + A) * A^T - K * F", result)
-
 
 if __name__ == "__main__":
     main()
