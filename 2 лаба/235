@@ -1,43 +1,23 @@
+```python
 import re
-
-with open("1.txt") as f:
-    text = f.read()
-
-# находим нужные числа
-nums = re.findall(r'\b\d{5,}[13579]\b', text)
-
-r = []
-found = False
-pair_index = 0
-i = 0
-
-while i < len(nums):
-    if i + 1 < len(nums):
-        x, y = nums[i], nums[i + 1]
+with open("1.txt") as f:text=f.read()
+nums=re.findall(r'\b\d{5,}[13579]\b',text)
+r=[];found=False;pair_index=0;i=0
+while i<len(nums):
+    if i+1<len(nums):
+        x,y=nums[i],nums[i+1]
         if not found:
-            r += [y, x]
-            if re.search(r'000', x) or re.search(r'000', y):
-                found = True
-                pair_index = 0
+            r+=[y,x]
+            if re.search(r'000',x)or re.search(r'000',y):
+                found=True;pair_index=0
         else:
-            if pair_index % 2 == 0:
-                r += [x, y]
-            else:
-                r += [y, x]
-            pair_index += 1
-        i += 2
+            r+=[x,y]if pair_index%2==0 else[y,x]
+            pair_index+=1
+        i+=2
     else:
-        r.append(nums[i])
-        i += 1
-
-# словарь цифр
-d = {
-    '0': 'ноль', '1': 'один', '2': 'два', '3': 'три',
-    '4': 'четыре', '5': 'пять', '6': 'шесть',
-    '7': 'семь', '8': 'восемь', '9': 'девять'
-}
-
-# вывод
+        r.append(nums[i]);i+=1
+d={'0':'ноль','1':'один','2':'два','3':'три','4':'четыре','5':'пять','6':'шесть','7':'семь','8':'восемь','9':'девять'}
 if r:
-    print(' '.join(r[:-1]), end=' ')
-    print(re.sub(r'\d', lambda m: d[m.group()], r[-1]))
+    print(' '.join(r[:-1]),end=' ')
+    print(re.sub(r'\d',lambda m:d[m.group()],r[-1]))
+```
