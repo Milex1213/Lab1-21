@@ -1,28 +1,17 @@
-import numpy as np
-
 K = int(input("Введите K: "))
 
 with open("matrix.txt", "r") as f:
     A = [list(map(int, line.split())) for line in f if line.strip()]
 
 N = len(A)
-A = np.array(A)
 
 print("\nМатрица A:")
-print(A)
+for row in A:
+    print(row)
 
-F = A.copy()
+F = [row[:] for row in A]
 
 mid = N // 2
-
-# 1 — левая
-area1 = (slice(None), slice(0, mid))
-# 2 — верхняя
-area2 = (slice(0, mid), slice(None))
-# 3 — правая
-area3 = (slice(None), slice(mid, N))
-# 4 — нижняя
-area4 = (slice(mid, N), slice(None))
 
 count_pos = 0
 for i in range(0, mid):
@@ -39,36 +28,80 @@ for i in range(mid, N):
 print("\nПоложительных:", count_pos)
 print("Отрицательных:", count_neg)
 
+def transpose(matrix):
+    return [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
+
 if count_pos > count_neg:
     print("\nСимметричный обмен областей 1 и 2")
-    temp = F[area1].copy()
-    F[area1] = F[area2].T
-    F[area2] = temp.T
+
+    area1 = [row[:mid] for row in F]
+    area2 = F[:mid]
+
+    area1_T = transpose(area1)
+    area2_T = transpose(area2)
+
+    for i in range(N):
+        for j in range(mid):
+            F[i][j] = area2_T[i][j]
+
+    for i in range(mid):
+        for j in range(N):
+            F[i][j] = area1_T[i][j]
+
 else:
     print("\nНесимметричный обмен областей 3 и 4")
-    temp = F[area3].copy()
-    F[area3] = F[area4]
-    F[area4] = temp
+
+    area3 = [row[mid:] for row in F]
+    area4 = F[mid:]
+
+    for i in range(N):
+        for j in range(mid):
+            if i >= mid:
+                F[i][j + mid] = area4[i - mid][j]
+
+    for i in range(mid):
+        for j in range(N):
+            if j < len(area3[i]):
+                F[i + mid][j] = area3[i][j]
 
 print("\nМатрица F:")
-print(F)
+for row in F:
+    print(row)
 
-sum_FA = F + A
+sum_FA = [[A[i][j] + F[i][j] for j in range(N)] for i in range(N)]
+
 print("\nF + A:")
-print(sum_FA)
+for row in sum_FA:
+    print(row)
 
-AT = A.T
+AT = transpose(A)
+
 print("\nA^T:")
-print(AT)
+for row in AT:
+    print(row)
 
-mult = np.dot(sum_FA, AT)
+def multiply(A, B):
+    result = [[0]*len(B[0]) for _ in range(len(A))]
+    for i in range(len(A)):
+        for j in range(len(B[0])):
+            for k in range(len(B)):
+                result[i][j] += A[i][k] * B[k][j]
+    return result
+
+mult = multiply(sum_FA, AT)
+
 print("\n(F + A) * A^T:")
-print(mult)
+for row in mult:
+    print(row)
 
-KF = K * F
+KF = [[K * F[i][j] for j in range(N)] for i in range(N)]
+
 print("\nK * F:")
-print(KF)
+for row in KF:
+    print(row)
 
-result = mult - KF
+result = [[mult[i][j] - KF[i][j] for j in range(N)] for i in range(N)]
+
 print("\nРезультат:")
-print(result)
+for row in result:
+    print(row)
