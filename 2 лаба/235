@@ -3,37 +3,41 @@ import re
 with open("1.txt") as f:
     text = f.read()
 
-# находим числа
+# находим нужные числа
 nums = re.findall(r'\b\d{5,}[13579]\b', text)
-
-# объединяем в пары сразу через regex
-pairs = re.findall(r'(\d+)\s+(\d+)', ' '.join(nums))
 
 r = []
 found = False
+pair_index = 0
+i = 0
 
-for idx, (x, y) in enumerate(pairs):
-    if not found:
-        r.extend([y, x])
-        if re.search(r'000', x + y):
-            found = True
-    else:
-        # чередование без pair_index
-        if idx % 2 == 0:
-            r.extend([x, y])
+while i < len(nums):
+    if i + 1 < len(nums):
+        x, y = nums[i], nums[i + 1]
+        if not found:
+            r += [y, x]
+            if re.search(r'000', x) or re.search(r'000', y):
+                found = True
+                pair_index = 0
         else:
-            r.extend([y, x])
+            if pair_index % 2 == 0:
+                r += [x, y]
+            else:
+                r += [y, x]
+            pair_index += 1
+        i += 2
+    else:
+        r.append(nums[i])
+        i += 1
 
-# если нечетное количество
-if len(nums) % 2 == 1:
-    r.append(nums[-1])
+# словарь цифр
+d = {
+    '0': 'ноль', '1': 'один', '2': 'два', '3': 'три',
+    '4': 'четыре', '5': 'пять', '6': 'шесть',
+    '7': 'семь', '8': 'восемь', '9': 'девять'
+}
 
 # вывод
-print(' '.join(r[:-1]), end=' ')
-
 if r:
-    print(re.sub(r'\d', lambda m: {
-        '0': 'ноль', '1': 'один', '2': 'два', '3': 'три',
-        '4': 'четыре', '5': 'пять', '6': 'шесть',
-        '7': 'семь', '8': 'восемь', '9': 'девять'
-    }[m.group()], r[-1]))
+    print(' '.join(r[:-1]), end=' ')
+    print(re.sub(r'\d', lambda m: d[m.group()], r[-1]))
