@@ -1,4 +1,3 @@
-```python
 import re
 with open("1.txt") as f:text=f.read()
 nums=re.findall(r'\b\d{5,}[13579]\b',text)
@@ -16,8 +15,6 @@ while i<len(nums):
         i+=2
     else:
         r.append(nums[i]);i+=1
-d={'0':'ноль','1':'один','2':'два','3':'три','4':'четыре','5':'пять','6':'шесть','7':'семь','8':'восемь','9':'девять'}
 if r:
     print(' '.join(r[:-1]),end=' ')
-    print(re.sub(r'\d',lambda m:d[m.group()],r[-1]))
-```
+    print(' '.join(r[-1]))
