@@ -3,9 +3,9 @@ import numpy as np
 K = int(input("Введите K: "))
 
 with open("matrix.txt", "r") as f:
-    N = int(f.readline())
-    A = [list(map(int, f.readline().split())) for _ in range(N)]
+    A = [list(map(int, line.split())) for line in f if line.strip()]
 
+N = len(A)
 A = np.array(A)
 
 print("\nМатрица A:")
