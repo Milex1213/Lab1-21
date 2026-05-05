@@ -16,20 +16,22 @@ mid = N // 2
 count_pos = 0
 for i in range(0, mid):
     for j in range(N):
-        if j % 2 == 0 and A[i][j] > 0:
+        if j % 2 != 0 and A[i][j] > 0:
             count_pos += 1
 
 count_neg = 0
 for i in range(mid, N):
     for j in range(N):
-        if j % 2 != 0 and A[i][j] < 0:
+        if j % 2 == 0 and A[i][j] < 0:
             count_neg += 1
 
 print("\nПоложительных:", count_pos)
 print("Отрицательных:", count_neg)
 
+
 def transpose(matrix):
     return [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
+
 
 if count_pos > count_neg:
     print("\nСимметричный обмен областей 1 и 2")
@@ -80,6 +82,7 @@ print("\nA^T:")
 for row in AT:
     print(row)
 
+
 def multiply(A, B):
     result = [[0]*len(B[0]) for _ in range(len(A))]
     for i in range(len(A)):
@@ -87,6 +90,7 @@ def multiply(A, B):
             for k in range(len(B)):
                 result[i][j] += A[i][k] * B[k][j]
     return result
+
 
 mult = multiply(sum_FA, AT)
 
