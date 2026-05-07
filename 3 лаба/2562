@@ -30,44 +30,47 @@ print("Отрицательных:", count_neg)
 
 
 def transpose(matrix):
-    return [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
+    return [[matrix[j][i] for j in range(len(matrix))]
+            for i in range(len(matrix[0]))]
 
 
 if count_pos > count_neg:
 
     print("\nСимметричный обмен областей 1 и 2")
 
-    area1 = [row[:mid] for row in F]
-    area2 = F[:mid]
-
-    area1_T = transpose(area1)
-    area2_T = transpose(area2)
+    temp = [row[:] for row in F]
 
     for i in range(N):
-        for j in range(mid):
-            F[i][j] = area2_T[i][j]
-
-    for i in range(mid):
         for j in range(N):
-            F[i][j] = area1_T[i][j]
+
+            # область 1 (левый треугольник)
+            if j <= i and j <= N - 1 - i:
+
+                # соответствующий элемент области 2 (верхний треугольник)
+                row2 = j
+                col2 = i
+
+                F[i][j] = temp[row2][col2]
+                F[row2][col2] = temp[i][j]
 
 else:
 
     print("\nНесимметричный обмен областей 3 и 4")
 
-    area3 = [row[mid:] for row in F]
-    area4 = F[mid:]
-
-    area3_T = transpose(area3)
-    area4_T = transpose(area4)
+    temp = [row[:] for row in F]
 
     for i in range(N):
-        for j in range(mid):
-            F[i][j + mid] = area4_T[i][j]
-
-    for i in range(mid):
         for j in range(N):
-            F[i + mid][j] = area3_T[i][j]
+
+            # область 3 (правый треугольник)
+            if j >= i and j >= N - 1 - i:
+
+                # соответствующий элемент области 4 (нижний треугольник)
+                row2 = N - 1 - j
+                col2 = N - 1 - i
+
+                F[i][j] = temp[row2][col2]
+                F[row2][col2] = temp[i][j]
 
 print("\nМатрица F:")
 for row in F:
