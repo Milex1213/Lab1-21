@@ -58,9 +58,9 @@ else:
     for i in range(mid):
         for j in range(i + 1):
 
-            F[i][j + mid], F[i + mid][j] = (
-                F[i + mid][j],
-                F[i][j + mid]
+            F[i][mid + j], F[mid + i][j] = (
+                F[mid + i][j],
+                F[i][mid + j]
             )
 
 print("\nМатрица F:")
