@@ -14,31 +14,42 @@ F = [row[:] for row in A]
 mid = N // 2
 
 count_pos = 0
-for i in range(mid):
+for i in range(0, mid):
     for j in range(N):
-        if j % 2 == 0 and A[i][j] > 0:
+        if j % 2 != 0 and A[i][j] > 0:
             count_pos += 1
 
 count_neg = 0
 for i in range(mid, N):
     for j in range(N):
-        if j % 2 != 0 and A[i][j] < 0:
+        if j % 2 == 0 and A[i][j] < 0:
             count_neg += 1
 
 print("\nПоложительных:", count_pos)
 print("Отрицательных:", count_neg)
 
+
+def transpose(matrix):
+    return [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
+
+
 if count_pos > count_neg:
 
     print("\nСимметричный обмен областей 1 и 2")
 
-    for i in range(mid):
-        for j in range(mid):
+    area1 = [row[:mid] for row in F]
+    area2 = F[:mid]
 
-            F[i][j], F[j][i] = (
-                F[j][i],
-                F[i][j]
-            )
+    area1_T = transpose(area1)
+    area2_T = transpose(area2)
+
+    for i in range(N):
+        for j in range(mid):
+            F[i][j] = area2_T[i][j]
+
+    for i in range(mid):
+        for j in range(N):
+            F[i][j] = area1_T[i][j]
 
 else:
 
@@ -47,31 +58,26 @@ else:
     for i in range(mid):
         for j in range(mid):
 
-            F[i][j + mid], F[i + mid][j] = (
-                F[i + mid][j],
-                F[i][j + mid]
+            top_i = i
+            top_j = j + mid
+
+            bottom_i = i + mid
+            bottom_j = j
+
+            F[top_i][top_j], F[bottom_i][bottom_j] = (
+                F[bottom_i][bottom_j],
+                F[top_i][top_j]
             )
 
 print("\nМатрица F:")
 for row in F:
     print(row)
 
-sum_FA = [
-    [A[i][j] + F[i][j] for j in range(N)]
-    for i in range(N)
-]
+sum_FA = [[A[i][j] + F[i][j] for j in range(N)] for i in range(N)]
 
 print("\nF + A:")
 for row in sum_FA:
     print(row)
-
-
-def transpose(matrix):
-    return [
-        [matrix[j][i] for j in range(len(matrix))]
-        for i in range(len(matrix[0]))
-    ]
-
 
 AT = transpose(A)
 
@@ -81,11 +87,7 @@ for row in AT:
 
 
 def multiply(A, B):
-
-    result = [
-        [0] * len(B[0])
-        for _ in range(len(A))
-    ]
+    result = [[0] * len(B[0]) for _ in range(len(A))]
 
     for i in range(len(A)):
         for j in range(len(B[0])):
@@ -101,19 +103,13 @@ print("\n(F + A) * A^T:")
 for row in mult:
     print(row)
 
-KF = [
-    [K * F[i][j] for j in range(N)]
-    for i in range(N)
-]
+KF = [[K * F[i][j] for j in range(N)] for i in range(N)]
 
 print("\nK * F:")
 for row in KF:
     print(row)
 
-result = [
-    [mult[i][j] - KF[i][j] for j in range(N)]
-    for i in range(N)
-]
+result = [[mult[i][j] - KF[i][j] for j in range(N)] for i in range(N)]
 
 print("\nРезультат:")
 for row in result:
