@@ -34,7 +34,11 @@ if count_pos > count_neg:
 
     for i in range(mid):
         for j in range(mid):
-            F[i][j], F[j][i] = F[j][i], F[i][j]
+
+            F[i][j], F[j][i] = (
+                F[j][i],
+                F[i][j]
+            )
 
 else:
 
@@ -43,15 +47,9 @@ else:
     for i in range(mid):
         for j in range(mid):
 
-            a_i = i
-            a_j = j + mid
-
-            b_i = i + mid
-            b_j = j
-
-            F[a_i][a_j], F[b_i][b_j] = (
-                F[b_i][b_j],
-                F[a_i][a_j]
+            F[i][j + mid], F[i + mid][j] = (
+                F[i + mid][j],
+                F[i][j + mid]
             )
 
 print("\nМатрица F:")
