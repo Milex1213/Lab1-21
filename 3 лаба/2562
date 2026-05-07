@@ -55,13 +55,19 @@ else:
 
     print("\nНесимметричный обмен областей 3 и 4")
 
-    for i in range(mid):
-        for j in range(i + 1):
+    area3 = [row[mid:] for row in F]
+    area4 = F[mid:]
 
-            F[i][mid + j], F[mid + i][j] = (
-                F[mid + i][j],
-                F[i][mid + j]
-            )
+    area3_T = transpose(area3)
+    area4_T = transpose(area4)
+
+    for i in range(N):
+        for j in range(mid):
+            F[i][j + mid] = area4_T[i][j]
+
+    for i in range(mid):
+        for j in range(N):
+            F[i + mid][j] = area3_T[i][j]
 
 print("\nМатрица F:")
 for row in F:
