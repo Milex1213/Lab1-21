@@ -1,0 +1,122 @@
+K = int(input("Введите K: "))
+
+with open("matrix.txt", "r") as f:
+    A = [list(map(int, line.split())) for line in f if line.strip()]
+
+N = len(A)
+
+print("\nМатрица A:")
+for row in A:
+    print(row)
+
+F = [row[:] for row in A]
+
+mid = N // 2
+
+count_pos = 0
+for i in range(mid):
+    for j in range(N):
+        if j % 2 == 0 and A[i][j] > 0:
+            count_pos += 1
+
+count_neg = 0
+for i in range(mid, N):
+    for j in range(N):
+        if j % 2 != 0 and A[i][j] < 0:
+            count_neg += 1
+
+print("\nПоложительных:", count_pos)
+print("Отрицательных:", count_neg)
+
+if count_pos > count_neg:
+
+    print("\nСимметричный обмен областей 1 и 2")
+
+    for i in range(mid):
+        for j in range(mid):
+            F[i][j], F[j][i] = F[j][i], F[i][j]
+
+else:
+
+    print("\nНесимметричный обмен областей 3 и 4")
+
+    for i in range(mid):
+        for j in range(mid):
+
+            a_i = i
+            a_j = j + mid
+
+            b_i = i + mid
+            b_j = j
+
+            F[a_i][a_j], F[b_i][b_j] = (
+                F[b_i][b_j],
+                F[a_i][a_j]
+            )
+
+print("\nМатрица F:")
+for row in F:
+    print(row)
+
+sum_FA = [
+    [A[i][j] + F[i][j] for j in range(N)]
+    for i in range(N)
+]
+
+print("\nF + A:")
+for row in sum_FA:
+    print(row)
+
+
+def transpose(matrix):
+    return [
+        [matrix[j][i] for j in range(len(matrix))]
+        for i in range(len(matrix[0]))
+    ]
+
+
+AT = transpose(A)
+
+print("\nA^T:")
+for row in AT:
+    print(row)
+
+
+def multiply(A, B):
+
+    result = [
+        [0] * len(B[0])
+        for _ in range(len(A))
+    ]
+
+    for i in range(len(A)):
+        for j in range(len(B[0])):
+            for k in range(len(B)):
+                result[i][j] += A[i][k] * B[k][j]
+
+    return result
+
+
+mult = multiply(sum_FA, AT)
+
+print("\n(F + A) * A^T:")
+for row in mult:
+    print(row)
+
+KF = [
+    [K * F[i][j] for j in range(N)]
+    for i in range(N)
+]
+
+print("\nK * F:")
+for row in KF:
+    print(row)
+
+result = [
+    [mult[i][j] - KF[i][j] for j in range(N)]
+    for i in range(N)
+]
+
+print("\nРезультат:")
+for row in result:
+    print(row)
