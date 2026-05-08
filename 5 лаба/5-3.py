@@ -5,50 +5,34 @@ import time
 
 # ==================================================
 # Целевая функция
-# Ищет оптимальное решение:
-# минимальное время + максимальное количество трио
+# Поиск оптимального трио
+# по максимальному среднему мастерству
 # ==================================================
 
-def objective_function(trios_count_algo,
-                       trios_count_func,
-                       time_algo,
-                       time_func):
+def objective_function(trios):
 
-    print("\n=== Целевая функция ===")
+    best_trio = None
+    best_average_skill = 0
 
-    # Проверка корректности решений
-    if trios_count_algo != trios_count_func:
+    for trio in trios:
 
-        return (
-            "Результаты различаются. "
-            "Оптимальное решение определить нельзя."
+        # Сумма мастерства трио
+        total_skill = (
+            trio[0][2] +
+            trio[1][2] +
+            trio[2][2]
         )
 
-    # Поиск оптимального решения
-    if time_algo < time_func:
+        # Среднее мастерство
+        average_skill = total_skill / 3
 
-        return (
-            f"Оптимальное решение: "
-            f"алгоритмический способ.\n"
-            f"Количество трио: {trios_count_algo}\n"
-            f"Время: {time_algo:.6f} сек"
-        )
+        # Поиск максимального значения
+        if average_skill > best_average_skill:
 
-    elif time_func < time_algo:
+            best_average_skill = average_skill
+            best_trio = trio
 
-        return (
-            f"Оптимальное решение: "
-            f"способ с itertools.\n"
-            f"Количество трио: {trios_count_func}\n"
-            f"Время: {time_func:.6f} сек"
-        )
-
-    else:
-
-        return (
-            f"Оба способа одинаково эффективны.\n"
-            f"Количество трио: {trios_count_algo}"
-        )
+    return best_trio, best_average_skill
 
 
 # ==================================================
@@ -60,7 +44,7 @@ T = int(input("Введите количество типов инструмен
 
 
 # ==================================================
-# Формирование музыкантов
+# Формирование списка музыкантов
 # ==================================================
 
 musicians = []
@@ -68,6 +52,8 @@ musicians = []
 for i in range(K):
 
     instrument_type = (i % T) + 1
+
+    # Случайный уровень мастерства
     skill = random.randint(1, 10)
 
     musicians.append(
@@ -82,6 +68,7 @@ for i in range(K):
 print("\nМузыканты:")
 
 for m in musicians:
+
     print(
         f"Музыкант {m[0]} — "
         f"тип {m[1]} — "
@@ -136,6 +123,10 @@ end1 = time.perf_counter()
 algo_time = end1 - start1
 
 
+# ==================================================
+# Вывод алгоритмического способа
+# ==================================================
+
 print("\n=== Алгоритмический способ ===")
 
 for trio in trios_algo:
@@ -163,6 +154,10 @@ end2 = time.perf_counter()
 func_time = end2 - start2
 
 
+# ==================================================
+# Вывод способа itertools
+# ==================================================
+
 print("\n=== Способ с itertools ===")
 
 for trio in trios_func:
@@ -173,14 +168,26 @@ print(f"Время выполнения: {func_time:.6f} сек")
 
 
 # ==================================================
-# Нахождение оптимального решения
+# Поиск оптимального трио
 # ==================================================
 
-result = objective_function(
-    len(trios_algo),
-    len(trios_func),
-    algo_time,
-    func_time
-)
+best_trio, best_average = objective_function(trios_func)
 
-print(result)
+
+# ==================================================
+# Вывод оптимального решения
+# ==================================================
+
+print("\n=== Оптимальное трио ===")
+
+print("Лучшее трио:")
+
+for musician in best_trio:
+
+    print(
+        f"Музыкант {musician[0]} — "
+        f"тип {musician[1]} — "
+        f"мастерство {musician[2]}"
+    )
+
+print(f"\nСреднее мастерство трио: {best_average:.2f}")
