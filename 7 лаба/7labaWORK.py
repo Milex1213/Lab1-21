@@ -1,136 +1,170 @@
 import tkinter as tk
-from tkinter import scrolledtext
-from itertools import permutations
+from tkinter import scrolledtext, messagebox
+import itertools
+import random
+import time
 
-# Часть 1: Формирование всех возможных вариантов обхода точек
-def algorithmic_method(points):
-    """Алгоритмический метод формирования всех перестановок."""
-    result = [[]]
-    for _ in range(len(points)):
-        temp = []
-        for path in result:
-            for point in points:
-                if point not in path:
-                    temp.append(path + [point])
-        result = temp
-    return result
+# Функция запуска программы
 
-def python_method(points):
-    """Метод с использованием itertools.permutations."""
-    return list(permutations(points))
+def run_program():
+    output.delete(1.0, tk.END)
 
-# Часть 2: Ограничение и целевая функция
-def calculate_distance(path):
-    """Вычисление суммарного расстояния для заданного пути."""
-    distance = 0
-    for i in range(len(path) - 1):
-        x1, y1 = path[i]
-        x2, y2 = path[i + 1]
-        distance += ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-    return distance
-
-def optimized_method(points, min_distance, max_total_distance):
-    """
-    Оптимизированный метод с ограничениями:
-    - Минимальное расстояние между соседними точками.
-    - Максимальная суммарная длина пути.
-    """
-    all_paths = python_method(points)
-    optimal_paths = []
-    for path in all_paths:
-        # Проверка минимального расстояния между соседними точками
-        valid = True
-        for i in range(len(path) - 1):
-            x1, y1 = path[i]
-            x2, y2 = path[i + 1]
-            if ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5 < min_distance:
-                valid = False
-                break
-        if valid and calculate_distance(path) <= max_total_distance:
-            optimal_paths.append((path, calculate_distance(path)))
-    return optimal_paths
-
-# Функция для обработки нажатия кнопки
-def calculate_paths():
     try:
-        # Получение данных из текстового поля
-        input_text = input_field.get("1.0", "end-1c").strip()
-        lines = input_text.split("\n")
-        K = int(lines[0].strip())  # Количество точек
-        points = [tuple(map(float, line.split())) for line in lines[1:]]
+        K = int(entry_k.get())
+        T = int(entry_t.get())
 
-        if len(points) != K:
-            output_field.delete("1.0", "end")
-            output_field.insert("1.0", "Ошибка: Количество точек не соответствует введенному числу!")
+        if K < 3:
+            messagebox.showerror("Ошибка", "Количество музыкантов должно быть не меньше 3")
             return
 
-        # Вычисление всех путей
-        all_paths_algo = algorithmic_method(points)
-        all_paths_python = python_method(points)
+        if T <= 0:
+            messagebox.showerror("Ошибка", "Количество типов инструментов должно быть больше 0")
+            return
 
-        # Вычисление оптимальных путей
-        min_distance = 1.5
-        max_total_distance = 10.0
-        optimal_paths = optimized_method(points, min_distance, max_total_distance)
+    except ValueError:
+        messagebox.showerror("Ошибка", "Введите целые числа")
+        return
 
-        # Формирование результата
-        result = (
-            f"Все возможные пути ({len(all_paths_algo)}):\n"
-            + "\n".join(str(path) for path in all_paths_algo)
-            + f"\n\nОптимальные пути ({len(optimal_paths)}):\n"
-            + "\n".join(f"{i}) Путь: {path}, Длина: {distance:.2f}" for i, (path, distance) in enumerate(optimal_paths, 1))
+    musicians = []
+
+    
+    for i in range(K):
+        instrument_type = (i % T) + 1
+        skill = random.randint(1, 10)
+
+        musicians.append((i + 1, instrument_type, skill))
+
+    output.insert(tk.END, "=== Музыканты ===\n\n")
+
+    for m in musicians:
+        output.insert(
+            tk.END,
+            f"Музыкант {m[0]} — тип {m[1]} — мастерство {m[2]}\n"
         )
+    
+    filtered_musicians = []
 
-        # Вывод результата в текстовое поле
-        output_field.delete("1.0", "end")
-        output_field.insert("1.0", result)
-    except Exception as e:
-        output_field.delete("1.0", "end")
-        output_field.insert("1.0", f"Ошибка: {str(e)}")
+    for m in musicians:
+        if m[2] >= 5:
+            filtered_musicians.append(m)
 
-# Создание главного окна
+    output.insert(tk.END, "\n=== Прошедшие отбор ===\n\n")
+
+    for m in filtered_musicians:
+        output.insert(tk.END, f"Музыкант {m[0]}\n")
+
+    # Алгоритмический способ
+
+    start1 = time.perf_counter()
+
+    trios_algo = []
+
+    N = len(filtered_musicians)
+
+    for i in range(N):
+        for j in range(i + 1, N):
+            for k in range(j + 1, N):
+
+                trio = (
+                    filtered_musicians[i],
+                    filtered_musicians[j],
+                    filtered_musicians[k]
+                )
+
+                trios_algo.append(trio)
+
+    end1 = time.perf_counter()
+
+    output.insert(tk.END, "\n=== Алгоритмический способ ===\n\n")
+
+    for trio in trios_algo:
+        output.insert(tk.END, f"{trio}\n")
+
+    output.insert(
+        tk.END,
+        f"\nКоличество трио: {len(trios_algo)}\n"
+    )
+
+    output.insert(
+        tk.END,
+        f"Время выполнения: {end1 - start1:.6f} сек\n"
+    )
+
+    # Способ itertools
+   
+    start2 = time.perf_counter()
+
+    trios_func = list(itertools.combinations(filtered_musicians, 3))
+
+    end2 = time.perf_counter()
+
+    output.insert(tk.END, "\n=== Способ itertools ===\n\n")
+
+    for trio in trios_func:
+        output.insert(tk.END, f"{trio}\n")
+
+    output.insert(
+        tk.END,
+        f"\nКоличество трио: {len(trios_func)}\n"
+    )
+
+    output.insert(
+        tk.END,
+        f"Время выполнения: {end2 - start2:.6f} сек\n"
+    )
+
+    # Сравнение времени
+
+    output.insert(tk.END, "\n=== Сравнение ===\n\n")
+
+    if (end1 - start1) < (end2 - start2):
+        output.insert(tk.END, "Алгоритмический способ быстрее.\n")
+    elif (end1 - start1) > (end2 - start2):
+        output.insert(tk.END, "Способ itertools быстрее.\n")
+    else:
+        output.insert(tk.END, "Время выполнения одинаковое.\n")
+
+
+# Создание окна
+
 root = tk.Tk()
-root.title("Обход точек на плоскости")
+root.title("Генератор музыкальных трио")
+root.geometry("900x700")
 
-# Окно ввода
-input_label = tk.Label(root, text="Введите количество точек и их координаты\n(формат: K\nx1 y1\nx2 y2 ...):",
-                       justify="left", font=("Arial", 12))  # Используем justify для выравнивания
-input_label.pack(pady=10)
+# Поля ввода
 
-input_field = tk.Text(root, height=10, width=50)
-input_field.pack(pady=5)
+label_k = tk.Label(root, text="Количество музыкантов:")
+label_k.pack()
 
-# Кнопка для запуска вычислений
-calculate_button = tk.Button(root, text="Вычислить", command=calculate_paths)
-calculate_button.pack(pady=10)
+entry_k = tk.Entry(root)
+entry_k.pack()
 
-# Окно вывода с прокруткой
-output_label = tk.Label(root, text="Результат:", font=("Arial", 12))
-output_label.pack(pady=5)
-output_field = scrolledtext.ScrolledText(root, height=15, width=70)
-output_field.pack(pady=5)
+label_t = tk.Label(root, text="Количество типов инструментов:")
+label_t.pack()
 
-# Запуск главного цикла
-root.mainloop()
-# Создание главного окна
-root = tk.Tk()
-root.title("Обход точек на плоскости")
+entry_t = tk.Entry(root)
+entry_t.pack()
 
-# Окно ввода
-input_label = tk.Label(root, text="Введите количество точек и их координаты (формат: K\nx1 y1\nx2 y2 ...):")
-input_label.pack(pady=5)
-input_field = tk.Text(root, height=10, width=50)
-input_field.pack(pady=5)
+# Кнопка
 
-# Кнопка для запуска вычислений
-calculate_button = tk.Button(root, text="Вычислить", command=calculate_paths)
-calculate_button.pack(pady=10)
+run_button = tk.Button(
+    root,
+    text="Запустить программу",
+    command=run_program
+)
 
-# Окно вывода с прокруткой
-output_label = tk.Label(root, text="Результат:")
-output_label.pack(pady=5)
-output_field = scrolledtext.ScrolledText(root, height=15, width=70)
-output_field.pack(pady=5)
+run_button.pack(pady=10)
 
-# Запуск главного цикла
+# Окно вывода со скроллингом
+
+output = scrolledtext.ScrolledText(
+    root,
+    width=110,
+    height=35
+)
+
+output.pack(padx=10, pady=10)
+
+# Запуск GUI
+
 root.mainloop()
