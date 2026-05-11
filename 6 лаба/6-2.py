@@ -4,11 +4,14 @@ import matplotlib.pyplot as plt
 
 def factorial(x):
     result = 1
+
     for i in range(2, x + 1):
         result *= i
+
     return result
 
 
+# Рекурсивный метод
 def F_recursive(n, memo=None):
 
     if memo is None:
@@ -22,7 +25,9 @@ def F_recursive(n, memo=None):
 
     if n not in memo:
 
-        memo[n] = ((-1) ** n) * (
+        sign = -1 if n % 2 else 1
+
+        memo[n] = sign * (
             2 * F_recursive(n - 1, memo) / factorial(n) +
             F_recursive(n - 2, memo) / factorial(2 * n)
         )
@@ -30,6 +35,7 @@ def F_recursive(n, memo=None):
     return memo[n]
 
 
+# Итерационный метод
 def F_iterative(n):
 
     if n == 0:
@@ -38,30 +44,25 @@ def F_iterative(n):
     if n == 1:
         return 1
 
-    prev2, prev1 = 5, 1
-    fact_n, fact_2n = 1, 1
-    current_n, current_2n = 1, 1
+    prev2 = 5
+    prev1 = 1
 
     for i in range(2, n + 1):
 
-        while current_n < i:
-            current_n += 1
-            fact_n *= current_n
+        sign = -1 if i % 2 else 1
 
-        while current_2n < 2 * i:
-            current_2n += 1
-            fact_2n *= current_2n
-
-        current = ((-1) ** i) * (
-            2 * prev1 / fact_n +
-            prev2 / fact_2n
+        current = sign * (
+            2 * prev1 / factorial(i) +
+            prev2 / factorial(2 * i)
         )
 
-        prev2, prev1 = prev1, current
+        prev2 = prev1
+        prev1 = current
 
     return prev1
 
 
+# Сравнение методов
 def compare_methods(max_n):
 
     recursive_times = []
@@ -94,6 +95,7 @@ def compare_methods(max_n):
     return recursive_times, iterative_times, results
 
 
+# Таблица
 def print_table(results):
 
     print("\nТаблица результатов\n")
@@ -120,6 +122,7 @@ def print_table(results):
         )
 
 
+# График
 def show_plot(recursive_times, iterative_times, max_n):
 
     plt.figure(figsize=(10, 5))
@@ -144,6 +147,7 @@ def show_plot(recursive_times, iterative_times, max_n):
 
     plt.legend()
     plt.grid(True)
+
     plt.show()
 
 
@@ -154,7 +158,12 @@ def main():
     recursive_times, iterative_times, results = compare_methods(max_n)
 
     print_table(results)
-    show_plot(recursive_times, iterative_times, max_n)
+
+    show_plot(
+        recursive_times,
+        iterative_times,
+        max_n
+    )
 
 
 if __name__ == "__main__":
