@@ -5,11 +5,47 @@ import random
 import time
 
 
-# ==================================================
-# Целевая функция
-# ==================================================
+# Часть 1: Формирование всех возможных трио
+
+def algorithmic_method(musicians):
+    """Алгоритмический метод формирования трио."""
+
+    trios = []
+
+    N = len(musicians)
+
+    for i in range(N):
+
+        for j in range(i + 1, N):
+
+            for k in range(j + 1, N):
+
+                trio = (
+                    musicians[i],
+                    musicians[j],
+                    musicians[k]
+                )
+
+                trios.append(trio)
+
+    return trios
+
+
+def python_method(musicians):
+    """Метод с использованием itertools."""
+
+    return list(
+        itertools.combinations(
+            musicians,
+            3
+        )
+    )
+
+
+# Часть 2: Целевая функция
 
 def objective_function(trios):
+    """Поиск лучшего трио."""
 
     best_trio = None
     best_average_skill = 0
@@ -32,79 +68,23 @@ def objective_function(trios):
     return best_trio, best_average_skill
 
 
-# ==================================================
-# Алгоритмический способ
-# ==================================================
-
-def algorithmic_method(filtered_musicians):
-
-    trios_algo = []
-
-    N = len(filtered_musicians)
-
-    for i in range(N):
-
-        for j in range(i + 1, N):
-
-            for k in range(j + 1, N):
-
-                trio = (
-                    filtered_musicians[i],
-                    filtered_musicians[j],
-                    filtered_musicians[k]
-                )
-
-                trios_algo.append(trio)
-
-    return trios_algo
-
-
-# ==================================================
-# Способ itertools
-# ==================================================
-
-def python_method(filtered_musicians):
-
-    return list(
-        itertools.combinations(
-            filtered_musicians,
-            3
-        )
-    )
-
+# Функция для обработки нажатия кнопки
 
 def calculate_trios():
 
     try:
 
+        # Получение данных из текстового поля
+
         input_text = input_field.get("1.0", "end-1c").strip()
 
         lines = input_text.split("\n")
 
-        K = int(lines[0])
-        T = int(lines[1])
+        K = int(lines[0].strip())
 
-        if K < 3:
+        T = int(lines[1].strip())
 
-            output_field.delete("1.0", "end")
-
-            output_field.insert(
-                "1.0",
-                "Ошибка: количество музыкантов должно быть не меньше 3!"
-            )
-
-            return
-
-        if T <= 0:
-
-            output_field.delete("1.0", "end")
-
-            output_field.insert(
-                "1.0",
-                "Ошибка: количество типов инструментов должно быть больше 0!"
-            )
-
-            return
+        # Формирование списка музыкантов
 
         musicians = []
 
@@ -118,6 +98,8 @@ def calculate_trios():
                 (i + 1, instrument_type, skill)
             )
 
+        # Отбор музыкантов
+
         filtered_musicians = []
 
         for m in musicians:
@@ -126,20 +108,13 @@ def calculate_trios():
 
                 filtered_musicians.append(m)
 
-        if len(filtered_musicians) < 3:
-
-            output_field.delete("1.0", "end")
-
-            output_field.insert(
-                "1.0",
-                "Недостаточно музыкантов после отбора!"
-            )
-
-            return
+        # Формирование трио
 
         start1 = time.perf_counter()
 
-        trios_algo = algorithmic_method(filtered_musicians)
+        all_trios_algo = algorithmic_method(
+            filtered_musicians
+        )
 
         end1 = time.perf_counter()
 
@@ -147,72 +122,48 @@ def calculate_trios():
 
         start2 = time.perf_counter()
 
-        trios_func = python_method(filtered_musicians)
+        all_trios_python = python_method(
+            filtered_musicians
+        )
 
         end2 = time.perf_counter()
 
-        func_time = end2 - start2
+        python_time = end2 - start2
 
-        best_trio, best_average = objective_function(trios_func)
+        # Поиск оптимального трио
 
-        result = "\nМузыканты:\n\n"
-
-        for m in musicians:
-
-            result += (
-                f"Музыкант {m[0]} — "
-                f"тип {m[1]} — "
-                f"мастерство {m[2]}\n"
+        best_trio, best_average = (
+            objective_function(
+                all_trios_python
             )
-
-        result += "\nМузыканты, прошедшие отбор:\n\n"
-
-        for m in filtered_musicians:
-
-            result += f"Музыкант {m[0]}\n"
-
-        result += "\n=== Алгоритмический способ ===\n\n"
-
-        for trio in trios_algo:
-
-            result += f"{trio}\n"
-
-        result += (
-            f"\nКоличество трио: {len(trios_algo)}\n"
         )
 
-        result += (
-            f"Время выполнения: {algo_time:.6f} сек\n"
+        # Формирование результата
+
+        result = (
+            f"Музыканты:\n"
+            + "\n".join(str(m) for m in musicians)
+
+            + f"\n\nМузыканты после отбора:\n"
+            + "\n".join(str(m) for m in filtered_musicians)
+
+            + f"\n\nАлгоритмический способ ({len(all_trios_algo)}):\n"
+            + "\n".join(str(trio) for trio in all_trios_algo)
+
+            + f"\n\nВремя выполнения: {algo_time:.6f} сек"
+
+            + f"\n\nСпособ itertools ({len(all_trios_python)}):\n"
+            + "\n".join(str(trio) for trio in all_trios_python)
+
+            + f"\n\nВремя выполнения: {python_time:.6f} сек"
+
+            + f"\n\nЛучшее трио:\n"
+            + "\n".join(str(m) for m in best_trio)
+
+            + f"\n\nСреднее мастерство: {best_average:.2f}"
         )
 
-        result += "\n=== Способ itertools ===\n\n"
-
-        for trio in trios_func:
-
-            result += f"{trio}\n"
-
-        result += (
-            f"\nКоличество трио: {len(trios_func)}\n"
-        )
-
-        result += (
-            f"Время выполнения: {func_time:.6f} сек\n"
-        )
-
-        result += "\n=== Оптимальное трио ===\n\n"
-
-        for musician in best_trio:
-
-            result += (
-                f"Музыкант {musician[0]} — "
-                f"тип {musician[1]} — "
-                f"мастерство {musician[2]}\n"
-            )
-
-        result += (
-            f"\nСреднее мастерство: "
-            f"{best_average:.2f}\n"
-        )
+        # Вывод результата
 
         output_field.delete("1.0", "end")
 
@@ -228,22 +179,24 @@ def calculate_trios():
         )
 
 
+# Создание главного окна
+
 root = tk.Tk()
 
-root.title("Подбор музыкального трио")
+root.title("Музыкальные трио")
 
-root.geometry("900x700")
 
+# Окно ввода
 
 input_label = tk.Label(
     root,
     text=(
-        "Введите данные:\n"
-        "1 строка — количество музыкантов K\n"
-        "2 строка — количество типов инструментов T"
+        "Введите:\n"
+        "K - количество музыкантов\n"
+        "T - количество типов инструментов"
     ),
-    font=("Arial", 12),
-    justify="left"
+    justify="left",
+    font=("Arial", 12)
 )
 
 input_label.pack(pady=10)
@@ -257,15 +210,18 @@ input_field = tk.Text(
 input_field.pack(pady=5)
 
 
+# Кнопка для запуска вычислений
+
 calculate_button = tk.Button(
     root,
     text="Вычислить",
-    command=calculate_trios,
-    font=("Arial", 12)
+    command=calculate_trios
 )
 
 calculate_button.pack(pady=10)
 
+
+# Окно вывода с прокруткой
 
 output_label = tk.Label(
     root,
@@ -277,11 +233,13 @@ output_label.pack(pady=5)
 
 output_field = scrolledtext.ScrolledText(
     root,
-    height=25,
-    width=100
+    height=15,
+    width=70
 )
 
 output_field.pack(pady=5)
 
+
+# Запуск главного цикла
 
 root.mainloop()
