@@ -2,7 +2,9 @@ import timeit
 import matplotlib.pyplot as plt
 
 
+# Функция вычисления факториала
 def factorial(x):
+
     result = 1
 
     for i in range(2, x + 1):
@@ -17,14 +19,17 @@ def F_recursive(n, memo=None):
     if memo is None:
         memo = {}
 
+    # Базовые случаи
     if n == 0:
         return 5
 
     if n == 1:
         return 1
 
+    # Проверка, вычислялось ли значение ранее
     if n not in memo:
 
+        # Знак (-1)^n
         sign = -1 if n % 2 else 1
 
         memo[n] = sign * (
@@ -38,44 +43,66 @@ def F_recursive(n, memo=None):
 # Итерационный метод
 def F_iterative(n):
 
+    # Базовые случаи
     if n == 0:
         return 5
 
     if n == 1:
         return 1
 
-    prev2 = 5
-    prev1 = 1
+    # Начальные значения
+    prev2 = 5      # F(0)
+    prev1 = 1      # F(1)
+
+    # Начальные факториалы:
+    # 1! = 1
+    # 2! = 2
+    fact_n = 1
+    fact_2n = 2
 
     for i in range(2, n + 1):
 
+        # Обновление n!
+        # i! = (i-1)! * i
+        fact_n *= i
+
+        # Обновление (2i)!
+        # (2i)! = (2i-2)! * (2i-1) * (2i)
+        fact_2n *= (2 * i - 1) * (2 * i)
+
+        # Знак (-1)^i
         sign = -1 if i % 2 else 1
 
+        # Вычисление текущего значения
         current = sign * (
-            2 * prev1 / factorial(i) +
-            prev2 / factorial(2 * i)
+            2 * prev1 / fact_n +
+            prev2 / fact_2n
         )
 
+        # Сдвиг значений
         prev2 = prev1
         prev1 = current
 
     return prev1
 
 
-# Сравнение методов
+# Сравнение времени выполнения
 def compare_methods(max_n):
 
     recursive_times = []
     iterative_times = []
+
     results = []
 
     for n in range(max_n + 1):
 
+        # Время рекурсивного метода
         rec_time = timeit.timeit(
             lambda: F_recursive(n),
             number=1000
         ) / 1000
 
+        # Время итерационного метода
         iter_time = timeit.timeit(
             lambda: F_iterative(n),
             number=1000
@@ -95,7 +122,7 @@ def compare_methods(max_n):
     return recursive_times, iterative_times, results
 
 
-# Таблица
+# Вывод таблицы результатов
 def print_table(results):
 
     print("\nТаблица результатов\n")
@@ -122,7 +149,7 @@ def print_table(results):
         )
 
 
-# График
+# Построение графика
 def show_plot(recursive_times, iterative_times, max_n):
 
     plt.figure(figsize=(10, 5))
@@ -143,6 +170,7 @@ def show_plot(recursive_times, iterative_times, max_n):
 
     plt.xlabel('n')
     plt.ylabel('Среднее время выполнения (с)')
+
     plt.title('Сравнение времени вычисления')
 
     plt.legend()
@@ -151,6 +179,7 @@ def show_plot(recursive_times, iterative_times, max_n):
     plt.show()
 
 
+# Главная функция
 def main():
 
     max_n = 20
